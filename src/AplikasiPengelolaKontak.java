@@ -3,17 +3,40 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 
+import java.awt.event.KeyEvent;
+import java.io.FileWriter;
+import java.nio.file.Files;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author HADI PC
  */
 public class AplikasiPengelolaKontak extends javax.swing.JFrame {
 
+    private Connection conn;
+    private List<Kontak> daftarKontak = new ArrayList<>();
+
     /**
+     * Creates new form JFrameAplikasiPengelolaKontak
+     *
+     * /**
      * Creates new form AplikasiPengelolaKontak
      */
     public AplikasiPengelolaKontak() {
         initComponents();
+
+        this.setLocationRelativeTo(null);
+        this.conn = SQLiteDatabase.connect();
+        this.reloadData();
+        this.reloadTable();
     }
 
     /**
@@ -45,6 +68,8 @@ public class AplikasiPengelolaKontak extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         txtCari = new javax.swing.JTextField();
         btnCari = new javax.swing.JButton();
+        btnImport = new javax.swing.JButton();
+        btnExport = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -61,12 +86,32 @@ public class AplikasiPengelolaKontak extends javax.swing.JFrame {
         jCbbKategori.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         btnTambah.setText("Tambah");
+        btnTambah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTambahActionPerformed(evt);
+            }
+        });
 
         btnEdit.setText("Edit");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
 
         btnReset.setText("Reset");
+        btnReset.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetActionPerformed(evt);
+            }
+        });
 
         btnHapus.setText("Hapus");
+        btnHapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHapusActionPerformed(evt);
+            }
+        });
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -90,7 +135,16 @@ public class AplikasiPengelolaKontak extends javax.swing.JFrame {
         jPanel3.add(txtCari);
 
         btnCari.setText("Cari");
+        btnCari.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCariActionPerformed(evt);
+            }
+        });
         jPanel3.add(btnCari);
+
+        btnImport.setText("Import");
+
+        btnExport.setText("Export");
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -117,11 +171,17 @@ public class AplikasiPengelolaKontak extends javax.swing.JFrame {
                         .addComponent(btnReset)
                         .addGap(18, 18, 18)
                         .addComponent(btnHapus))
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                     .addGroup(jPanel4Layout.createSequentialGroup()
                         .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                        .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel4Layout.createSequentialGroup()
+                                .addComponent(btnImport)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnExport)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(22, Short.MAX_VALUE))
         );
         jPanel4Layout.setVerticalGroup(
@@ -147,11 +207,15 @@ public class AplikasiPengelolaKontak extends javax.swing.JFrame {
                     .addComponent(btnHapus))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 16, Short.MAX_VALUE)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addGap(45, 45, 45))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnImport)
+                    .addComponent(btnExport))
+                .addGap(16, 16, 16))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -167,8 +231,8 @@ public class AplikasiPengelolaKontak extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, 450, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
@@ -176,6 +240,103 @@ public class AplikasiPengelolaKontak extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnTambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTambahActionPerformed
+        var kontakOptional = this.getKontakFromInput();
+        if (kontakOptional.isEmpty()) {
+            return;
+        }
+
+        var kontak = kontakOptional.get();
+        if (Kontak.cekSudahAda(conn, kontak)) {
+            new Utilities(this)
+                    .showErrorDialog("kontak dengan nomor %s sudah ada!".formatted(kontak.nomor));
+        } else {
+            kontak.insert(conn);
+        }
+
+        this.reset();
+    }//GEN-LAST:event_btnTambahActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        var kontakOptional = this.getKontakFromInput();
+        if (kontakOptional.isEmpty()) {
+            return;
+        }
+
+        kontakOptional.get().update(conn);
+        this.reset();
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
+        this.reset()
+    :
+    }//GEN-LAST:event_btnResetActionPerformed
+
+    private void btnHapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHapusActionPerformed
+        var kontakOptional = this.getKontakFromInput();
+        if (kontakOptional.isEmpty()) {
+            return;
+        }
+
+        kontakOptional.get().delete(conn);
+        this.reset();
+    }//GEN-LAST:event_btnHapusActionPerformed
+
+    private void btnCariActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCariActionPerformed
+        var search = jtxtCari.getText();
+        if (search.isBlank()) {
+            return;
+        }
+
+        this.reloadData();
+        this.daftarKontak = this.daftarKontak
+                .stream()
+                .filter(
+                        kontak -> kontak.nomor.contains(search)
+                        || kontak.nama.contains(search)
+                )
+                .collect(Collectors.toList());
+        this.reloadTable();
+    }//GEN-LAST:event_btnCariActionPerformed
+
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {
+        int row = jTable1.rowAtPoint(evt.getPoint());
+        if (row < 0) {
+            return;
+        }
+
+        var kontak = this.daftarKontak.get(row);
+        jtxtID.setText(String.valueOf(kontak.id));
+        jtxtNomor.setText(kontak.nomor);
+        jtxtNama.setText(kontak.nama);
+        jCbbKategori.setSelectedItem(kontak.kategori);
+
+        jbtnTambah.setEnabled(false);
+        jbtnEdit.setEnabled(true);
+        jbtnHapus.setEnabled(true);
+    }
+
+    private void jCbbFilterKategoriItemStateChanged(java.awt.event.ItemEvent evt) {
+        this.reloadTable();
+    }
+
+     private void jtxtNomorKeyTyped(java.awt.event.KeyEvent evt) {                                         
+        var utils = new Utilities(this, false);
+
+        if (utils.validasiInputHanyaAngka(evt)) {
+        } else if (jtxtNomor.getText().length() > 12 && evt.getKeyCode() != KeyEvent.VK_BACK_SPACE) {
+            utils.showErrorDialog("panjang nomor tidak boleh lebih dari 13!");
+            evt.consume();
+        }
+    }                                        
+
+    private void jtxtNomorFocusLost(java.awt.event.FocusEvent evt) {                                          
+        var nomor = jtxtNomor.getText();
+        if (!nomor.isEmpty() && nomor.length() < 10) {
+            new Utilities(this).showErrorDialog("panjang nomor terlalu pendek!");
+            jtxtNomor.requestFocusInWindow();
+        }
+    }            
     /**
      * @param args the command line arguments
      */
@@ -214,7 +375,9 @@ public class AplikasiPengelolaKontak extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCari;
     private javax.swing.JButton btnEdit;
+    private javax.swing.JButton btnExport;
     private javax.swing.JButton btnHapus;
+    private javax.swing.JButton btnImport;
     private javax.swing.JButton btnReset;
     private javax.swing.JButton btnTambah;
     private javax.swing.JComboBox<String> jCbbFilterKategori;
